@@ -8,9 +8,10 @@ exports.createUser = async (req, res, next) => {
     const newUser = new User(req.body);
     const user = await newUser.save();
     if (user) {
+      user.password = undefined;
       res
         .status(201)
-        .json(apiResponse(true, "User created successfully"));
+        .json(apiResponse(true, "User created successfully", user));
     } else {
       res.status(400).json(apiResponse(false, "User not created"));
     }
@@ -25,21 +26,14 @@ exports.login = async (req, res, next) => {
   if (!email || !password) {
     next(new CustomError(400, "All fields are required"));
   }
-console.log(email,password);
-
   try {
     const user = await User.findOne({ email }).select("+password");
 
     if (!user || !(await user.comparePassword(password))) {
       return next(new CustomError(400, "Email or password does not match"));
     }
-
     const token = await user.generateJWTToken();
-
-    user.password = undefined;
-
     res.cookie("token", token, cookieOptions);
-
     res
       .status(200)
       .json(apiResponse(true, "User logged in successfully", token));

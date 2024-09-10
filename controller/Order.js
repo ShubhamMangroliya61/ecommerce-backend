@@ -18,9 +18,38 @@ exports.fetchOrdersByUser = async (req, res, next) => {
   }
 };
 
+exports.fetchAllOrders = async (req, res, next) => {
+  try {
+    let query = Order.find({});
+    let totalProductsQuery = Order.find({});
+
+    if (req.query._sort && req.query._order) {
+      query = query.sort({ [req.query._sort]: req.query._order });
+    }
+    // const totalOrders = await totalProductsQuery.countDocuments().exec();
+
+    if (req.query._page && req.query._limit) {
+      const pageSize = parseInt(req.query._limit, 10);
+      const page = parseInt(req.query._page, 10);
+      query = query.skip(pageSize * (page - 1)).limit(pageSize);
+    }
+
+    const orders = await query.exec();
+
+    res.status(200).json(
+      apiResponse(true, "Orders fetched successfully", {
+        orders,
+        totalOrders,
+      })
+    );
+  } catch (err) {
+    next(new CustomError(500, err.message));
+  }
+};
+
 exports.createOrder = async (req, res, next) => {
   try {
-    const order = new Order(req.body);
+    const order = new Order({ ...req.body });
     const newOrder = await order.save();
     if (!newOrder) {
       res.status(404).json(apiResponse(false, "Order not created"));

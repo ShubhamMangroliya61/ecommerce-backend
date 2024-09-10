@@ -10,7 +10,7 @@ exports.fetchUserById = async (req, res,next) => {
       res.status(404).json(apiResponse(false, "user not found"));
     } else {
       res.status(200).json(
-        apiResponse(true, "user update successfully", {
+        apiResponse(true, "user get successfully", {
           id: user.id,
           addresses: user.addresses,
           email: user.email,

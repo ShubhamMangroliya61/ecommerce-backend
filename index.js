@@ -13,9 +13,21 @@ const userRoutes = require("./routes/User");
 const authRoutes = require("./routes/Auth");
 const cartRoutes = require("./routes/Cart");
 const orderRoutes = require("./routes/Order");
+const cookieParser = require("cookie-parser");
 
-server.use(cors());
-//middleware
+server.use(cors({
+  origin: 'http://localhost:3001',
+  credentials: true
+}));
+server.use(cookieParser());
+server.use(function (req, res, next) {
+  res.setHeader("Access-Control-Allow-Origin", 'http://localhost:3001');
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Credentials", true);
+  next();
+});
+
 server.use(express.json());
 
 main().catch((err) => console.log(err));

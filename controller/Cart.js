@@ -4,24 +4,25 @@ const CustomError = require("../utils/CustomeError");
 
 exports.fetchCartByUser = async (req, res, next) => {
   try {
-    const id = req.user.id;
-    const cart = await Cart.find({ user: id }).populate("product");
-    if (!cart) {
-      res.status(404).json(apiResponse(false, "cart not found"));
-    } else {
-      res
-        .status(200)
-        .json(apiResponse(true, "Cart fetched successfully", cart));
+    const userId = req.user.id;
+    const cart = await Cart.find({ user: userId }).populate("product");
+    if (cart.length === 0) {
+      return res.status(404).json(apiResponse(false, "Cart not found"));
     }
+    res.status(200).json(apiResponse(true, "Cart fetched successfully", cart));
   } catch (err) {
     next(new CustomError(500, err.message));
   }
 };
 
 exports.addToCart = async (req, res, next) => {
-    const id = req.user.id;
+  const id = req.user.id;
   try {
-    const cart = new Cart({...req.body,user:id  });
+    const cart = new Cart({
+      quantity: req.body.quantity,
+      product: req.body.id,
+      user: id,
+    });
     const newCart = await cart.save();
     if (!newCart) {
       res.status(404).json(apiResponse(false, "Cart not created"));
@@ -53,6 +54,7 @@ exports.deleteFromCart = async (req, res, next) => {
 exports.updateCart = async (req, res, next) => {
   const { id } = req.params;
   try {
+    req.body.product = req.body.product.id;
     const cart = await Cart.findByIdAndUpdate(id, req.body, {
       new: true,
     });
