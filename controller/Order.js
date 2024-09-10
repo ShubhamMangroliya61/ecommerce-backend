@@ -1,4 +1,7 @@
 const { Order } = require("../model/Order");
+const { Product } = require("../Model/Product");
+const { User } = require("../model/User");
+const { invoiceTemplate } = require("../service/Common");
 const apiResponse = require("../utils/APIResponse");
 const CustomError = require("../utils/CustomeError");
 
@@ -50,10 +53,22 @@ exports.fetchAllOrders = async (req, res, next) => {
 exports.createOrder = async (req, res, next) => {
   try {
     const order = new Order({ ...req.body });
+
+    for (let item of order.items) {
+      let product = await Product.findOne({ _id: item.product.id });
+      product.$inc("stock", -1 * item.quantity);
+      await product.save();
+    }
     const newOrder = await order.save();
     if (!newOrder) {
       res.status(404).json(apiResponse(false, "Order not created"));
     } else {
+      const user = await User.findById(order.user);
+      sendMail({
+        to: user.email,
+        html: invoiceTemplate(order),
+        subject: "Order Received",
+      });
       res
         .status(200)
         .json(apiResponse(true, "Order create successfully", newOrder));
