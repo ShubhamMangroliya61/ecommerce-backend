@@ -46,14 +46,7 @@ server.use("/auth", authRoutes);
 server.use("/cart", isLogin.isLoggedIn, cartRoutes);
 server.use("/orders", isLogin.isLoggedIn, orderRoutes);
 
-// This is your test secret API key.
-const stripe = require("stripe")(
-  "sk_test_51PxjlmJ6MvCbIOBuwQwu2eabtnOifeFS5qc4XbtIoQuWXhtGD3gTnyYMsC4B9einwzsBg0owFe315uJ6UKt3Fs1N00tLZZbdDt"
-);
-
-const calculateOrderAmount = (items) => {
-  return 140000;
-};
+const stripe = require("stripe")(config.get("stripekey"));
 
 server.post("/create-payment-intent", async (req, res) => {
   const { totalAmount } = req.body;
