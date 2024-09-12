@@ -10,7 +10,8 @@ const _config = {
   jwtExpiry: process.env.JWT_EXPIRY || "1h",
   emailpass: process.env.MAIL_PASSWORD,
   smtpemail:process.env.SMTP_MAIL,
-  stripekey:process.env.STRIPE_KEY
+  stripekey:process.env.STRIPE_KEY,
+  frontendUrl:process.env.FRONTEND_URL
 };
 
 const config = {
