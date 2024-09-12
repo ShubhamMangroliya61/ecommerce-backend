@@ -9,6 +9,7 @@ const _config = {
   jwtSecret: process.env.JWT_SECRET,
   jwtExpiry: process.env.JWT_EXPIRY || "1h",
   emailpass: process.env.MAIL_PASSWORD,
+  smtpemail:process.env.SMTP_MAIL
 };
 
 const config = {

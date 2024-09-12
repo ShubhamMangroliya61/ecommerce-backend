@@ -20,7 +20,7 @@ exports.addToCart = async (req, res, next) => {
   try {
     const cart = new Cart({
       quantity: req.body.quantity,
-      product: req.body.id,
+      product: req.body.productId,
       user: id,
     });
     const newCart = await cart.save();
@@ -46,6 +46,26 @@ exports.deleteFromCart = async (req, res, next) => {
     } else {
       res.status(200).json(apiResponse(true, "cart delete successfully", cart));
     }
+  } catch (err) {
+    next(new CustomError(500, err.message));
+  }
+};
+exports.resetCart = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    if (!userId) {
+      return res.status(400).json(apiResponse(false, "User ID is required"));
+    }
+
+    const result = await Cart.deleteMany({ user: userId });
+
+    if (result.deletedCount === 0) {
+      return res
+        .status(404)
+        .json(apiResponse(false, "No carts found for this user"));
+    }
+
+    res.status(200).json(apiResponse(true, "Cart reset successfully"));
   } catch (err) {
     next(new CustomError(500, err.message));
   }

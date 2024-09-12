@@ -1,7 +1,7 @@
 const { Order } = require("../model/Order");
 const { Product } = require("../Model/Product");
 const { User } = require("../model/User");
-const { invoiceTemplate } = require("../service/Common");
+const { invoiceTemplate, sendMail } = require("../service/Common");
 const apiResponse = require("../utils/APIResponse");
 const CustomError = require("../utils/CustomeError");
 
@@ -63,12 +63,12 @@ exports.createOrder = async (req, res, next) => {
     if (!newOrder) {
       res.status(404).json(apiResponse(false, "Order not created"));
     } else {
-      const user = await User.findById(order.user);
-      sendMail({
-        to: user.email,
-        html: invoiceTemplate(order),
-        subject: "Order Received",
-      });
+        // const user = await User.findById(order.user);
+        // sendMail({
+        //   to: user.email,
+        //   html: invoiceTemplate(order),
+        //   subject: "Order Received",
+        // });
       res
         .status(200)
         .json(apiResponse(true, "Order create successfully", newOrder));
@@ -120,7 +120,7 @@ exports.fetchAllOrders = async (req, res) => {
     query = query.sort({ [req.query._sort]: req.query._order });
   }
 
-  const totalOrders = await totalOrdersQuery.count().exec();
+  const totalOrders = await totalOrdersQuery.countDocuments().exec();
 
   if (req.query._page && req.query._limit) {
     const pageSize = req.query._limit;

@@ -6,22 +6,26 @@ let transporter = nodemailer.createTransport({
   port: 587,
   secure: false,
   auth: {
-    user: "coderdost@gmail.com",
+    user: config.get("smtpemail"),
     pass: config.get("emailpass"),
   },
 });
 
 exports.sendMail = async function ({ to, subject, text, html }) {
-  let info = await transporter.sendMail({
-    from: '"E-commerce" <coderdost@gmail.com>',
-    to,
-    subject,
-    text,
-    html,
-  });
-  return info;
+  try {
+    let info = await transporter.sendMail({
+      from: config.get("smtpemail"),
+      to,
+      subject,
+      text,
+      html,
+    });
+    return info;
+  } catch (error) {
+    console.error("Error sending email:", error);
+    throw error;
+  }
 };
-
 exports.invoiceTemplate = function (order) {
   return `<!DOCTYPE html>
    <html>
