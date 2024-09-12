@@ -1,5 +1,5 @@
 const express = require('express');
-const { addToCart, fetchCartByUser, deleteFromCart, updateCart, resetCart } = require('../controller/cart');
+const { addToCart, fetchCartByUser, deleteFromCart, updateCart, resetCart } = require('../controller/Cart');
 
 const router = express.Router();
 //  /products is already added in base path
