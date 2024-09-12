@@ -1,4 +1,4 @@
-const { Product } = require("../Model/Product");
+const { Product } = require("../model/Product");
 const CustomError = require("../utils/CustomeError");
 const apiResponse = require("../utils/APIResponse");
 
