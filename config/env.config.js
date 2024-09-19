@@ -11,7 +11,8 @@ const _config = {
   emailpass: process.env.MAIL_PASSWORD,
   smtpemail:process.env.SMTP_MAIL,
   stripekey:process.env.STRIPE_KEY,
-  frontendUrl:process.env.FRONTEND_URL
+  frontendUrl:process.env.FRONTEND_URL,
+  endpoint:process.env.ENDPOINT_SECRET
 };
 
 const config = {

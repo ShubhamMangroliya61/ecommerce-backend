@@ -14,6 +14,44 @@ const authRoutes = require("./routes/Auth");
 const cartRoutes = require("./routes/Cart");
 const orderRoutes = require("./routes/Order");
 const cookieParser = require("cookie-parser");
+const { Order } = require("./model/Order");
+
+const endpointSecret = config.get("endpoint");
+server.post(
+  '/webhook',
+  express.raw({ type: 'application/json' }),
+  async (request, response) => {
+    const sig = request.headers['stripe-signature'];
+
+    let event;
+
+    try {
+      event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+    } catch (err) {
+      response.status(400).send(`Webhook Error: ${err.message}`);
+      return;
+    }
+     console.log(event);
+     
+    switch (event.type) {
+      case 'payment_intent.succeeded':
+        const paymentIntentSucceeded = event.data.object;
+        console.log(paymentIntentSucceeded);
+        const order = await Order.findById(
+          paymentIntentSucceeded.metadata.orderId
+        );
+        order.paymentStatus = 'received';
+        await order.save();
+
+        break;
+      default:
+        console.log(`Unhandled event type ${event.type}`);
+    }
+
+    response.send();
+  }
+);
+
 
 server.use(
   cors({
@@ -49,13 +87,16 @@ server.use("/orders", isLogin.isLoggedIn, orderRoutes);
 const stripe = require("stripe")(config.get("stripekey"));
 
 server.post("/create-payment-intent", async (req, res) => {
-  const { totalAmount } = req.body;
+  const { totalAmount,orderId } = req.body;
 
   const paymentIntent = await stripe.paymentIntents.create({
     amount: totalAmount * 100,
     currency: "inr",
     automatic_payment_methods: {
       enabled: true,
+    },
+    metadata: {
+      orderId,
     },
   });
 

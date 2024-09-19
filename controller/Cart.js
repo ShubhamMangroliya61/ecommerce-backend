@@ -7,7 +7,7 @@ exports.fetchCartByUser = async (req, res, next) => {
     const userId = req.user.id;
     const cart = await Cart.find({ user: userId }).populate("product");
     if (cart.length === 0) {
-      return res.status(404).json(apiResponse(false, "Cart not found"));
+      res.status(404).json(apiResponse(false, "Cart not found"));
     }
     res.status(200).json(apiResponse(true, "Cart fetched successfully", cart));
   } catch (err) {
